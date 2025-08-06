@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { moviesAPI } from '@/lib/api';
-import type { Movie } from '@/lib/api';
+import { searchAPI } from '@/lib/neoApi';
+import type { Movie } from '@/lib/neoApi';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -48,7 +48,7 @@ export function useSearch() {
       setCurrentQuery(query);
       setCurrentPage(1);
 
-      const response = await moviesAPI.searchMovies(query, 1);
+      const response = await searchAPI.multiSearch(query, 1);
       const filteredMovies = filterMovies(response.data.results);
       
       if (filteredMovies.length === 0) {
@@ -74,7 +74,7 @@ export function useSearch() {
       setLoading(true);
       const nextPage = currentPage + 1;
       
-      const response = await moviesAPI.searchMovies(currentQuery, nextPage);
+      const response = await searchAPI.multiSearch(currentQuery, nextPage);
       const filteredMovies = filterMovies(response.data.results);
       
       setResults(prev => [...prev, ...filteredMovies]);

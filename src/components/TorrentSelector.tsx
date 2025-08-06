@@ -3,44 +3,38 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Copy, Check } from 'lucide-react';
-
-interface Torrent {
-  magnet: string;
-  title?: string;
-  name?: string;
-  quality?: string;
-  seeders?: number;
-  size_gb?: number;
-}
-
-interface GroupedTorrents {
-  [quality: string]: Torrent[];
-}
-
-interface SeasonGroupedTorrents {
-  [season: string]: GroupedTorrents;
-}
+import { torrentsAPI, type TorrentResult } from '@/lib/neoApi';
 
 interface TorrentSelectorProps {
   imdbId: string | null;
   type: 'movie' | 'tv';
-  totalSeasons?: number;
+  title?: string;
+  originalTitle?: string;
+  year?: string;
 }
 
-export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentSelectorProps) {
-  const [torrents, setTorrents] = useState<Torrent[] | null>(null);
+export default function TorrentSelector({ imdbId, type, title, originalTitle, year }: TorrentSelectorProps) {
+  const [torrents, setTorrents] = useState<TorrentResult[] | null>(null);
+  const [availableSeasons, setAvailableSeasons] = useState<number[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number | null>(type === 'movie' ? 1 : null);
   const [selectedMagnet, setSelectedMagnet] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
 
+  // Для TV показов получаем доступные сезоны из названий торрентов
+  useEffect(() => {
+    if (type === 'tv' && title && !availableSeasons.length) {
+      fetchAvailableSeasons();
+    }
+  }, [type, title, originalTitle, year]);
+
   // Для TV показов автоматически выбираем первый сезон
   useEffect(() => {
-    if (type === 'tv' && totalSeasons && totalSeasons > 0 && !selectedSeason) {
-      setSelectedSeason(1);
+    if (type === 'tv' && availableSeasons.length > 0 && !selectedSeason) {
+      setSelectedSeason(availableSeasons[0]);
     }
-  }, [type, totalSeasons, selectedSeason]);
+  }, [type, availableSeasons, selectedSeason]);
 
   useEffect(() => {
     if (!imdbId) return;
@@ -55,32 +49,36 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
     }
   }, [imdbId, type, selectedSeason]);
 
+  const fetchAvailableSeasons = async () => {
+    if (!title) return;
+    
+    try {
+      const response = await torrentsAPI.getAvailableSeasons(title, originalTitle, year);
+      setAvailableSeasons(response.data.seasons || []);
+    } catch (err) {
+      console.error('Failed to fetch available seasons:', err);
+      // Если не удалось получить сезоны, используем пустой массив
+      setAvailableSeasons([]);
+    }
+  };
+
   const fetchTorrents = async () => {
     setLoading(true);
     setError(null);
     setSelectedMagnet(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiUrl) {
-        throw new Error('API URL не настроен');
-      }
-      
-      let url = `${apiUrl}/torrents/search/${imdbId}?type=${type}`;
+      const options: any = {};
       
       if (type === 'tv' && selectedSeason) {
-        url += `&season=${selectedSeason}`;
+        options.season = selectedSeason;
       }
       
-      console.log('API URL:', url, 'IMDB:', imdbId, 'season:', selectedSeason);
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Failed to fetch torrents');
-      }
-      const data = await res.json();
-      if (data.total === 0) {
+      const response = await torrentsAPI.searchTorrents(imdbId!, type, options);
+      
+      if (response.data.total === 0) {
         setError('Торренты не найдены.');
       } else {
-        setTorrents(data.results as Torrent[]);
+        setTorrents(response.data.results);
       }
     } catch (err) {
       console.error(err);
@@ -90,7 +88,7 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
     }
   };
 
-  const handleQualitySelect = (torrent: Torrent) => {
+  const handleQualitySelect = (torrent: TorrentResult) => {
     setSelectedMagnet(torrent.magnet);
     setIsCopied(false);
   };
@@ -122,7 +120,7 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
 
   if (!torrents) return null;
 
-  const renderTorrentButtons = (list: Torrent[]) => {
+  const renderTorrentButtons = (list: TorrentResult[]) => {
     if (!list?.length) {
       return (
         <p className="text-sm text-muted-foreground">
@@ -132,8 +130,8 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
     }
 
     return list.map(torrent => {
-      const size = torrent.size_gb;
-      const label = torrent.title || torrent.name || 'Раздача';
+      const size = torrent.size;
+      const label = torrent.title || 'Раздача';
 
       return (
         <Button
@@ -150,8 +148,8 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
             className="flex w-full items-center"
           >
             <span className="flex-1 truncate whitespace-nowrap overflow-hidden">{label}</span>
-            {size !== undefined && (
-              <span className="text-xs text-muted-foreground">{size.toFixed(2)} GB</span>
+            {size && (
+              <span className="text-xs text-muted-foreground">{size}</span>
             )}
           </a>
         </Button>
@@ -161,11 +159,11 @@ export default function TorrentSelector({ imdbId, type, totalSeasons }: TorrentS
 
   return (
     <div className="mt-4 space-y-4">
-      {type === 'tv' && totalSeasons && totalSeasons > 0 && (
+      {type === 'tv' && availableSeasons.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-2">Сезоны</h3>
           <div className="flex flex-wrap gap-2">
-            {Array.from({ length: totalSeasons }, (_, i) => i + 1).map(season => (
+            {availableSeasons.map(season => (
               <Button 
                 key={season} 
                 onClick={() => {setSelectedSeason(season); setSelectedMagnet(null);}} 

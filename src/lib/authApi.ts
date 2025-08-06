@@ -1,19 +1,19 @@
-import { api } from './api';
+import { neoApi } from './neoApi';
 
 export const authAPI = {
   register(data: { email: string; password: string; name?: string }) {
-    return api.post('/auth/register', data);
+    return neoApi.post('/api/v1/auth/register', data);
   },
   resendCode(email: string) {
-    return api.post('/auth/resend-code', { email });
+    return neoApi.post('/api/v1/auth/resend-code', { email });
   },
   verify(email: string, code: string) {
-    return api.post('/auth/verify', { email, code });
+    return neoApi.post('/api/v1/auth/verify', { email, code });
   },
   login(email: string, password: string) {
-    return api.post('/auth/login', { email, password });
+    return neoApi.post('/api/v1/auth/login', { email, password });
   },
   deleteAccount() {
-    return api.delete('/auth/profile');
+    return neoApi.delete('/api/v1/auth/profile');
   }
 };

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { moviesAPI } from '@/lib/neoApi';
 import type { Movie, MovieResponse } from '@/lib/neoApi';
 
-export type MovieCategory = 'popular' | 'top_rated' | 'now_playing';
+export type MovieCategory = 'popular' | 'top-rated' | 'now-playing' | 'upcoming';
 
 interface UseMoviesProps {
   initialPage?: number;
@@ -26,11 +26,14 @@ export function useMovies({ initialPage = 1, category = 'popular' }: UseMoviesPr
       let response: { data: MovieResponse };
 
       switch (movieCategory) {
-        case 'top_rated':
+        case 'top-rated':
           response = await moviesAPI.getTopRated(pageNum);
           break;
-        case 'now_playing':
+        case 'now-playing':
           response = await moviesAPI.getNowPlaying(pageNum);
+          break;
+        case 'upcoming':
+          response = await moviesAPI.getUpcoming(pageNum);
           break;
         case 'popular':
         default:

@@ -2,7 +2,7 @@
 
 import PageLayout from '@/components/PageLayout';
 import TVContent from '@/app/tv/[id]/TVContent';
-import type { TVShowDetails } from '@/lib/api';
+import type { TVShowDetails } from '@/lib/neoApi';
 
 interface TVPageProps {
   showId: string;

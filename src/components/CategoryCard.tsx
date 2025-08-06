@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Category } from '@/lib/api';
+import { Category } from '@/lib/neoApi';
 
 interface CategoryCardProps {
   category: Category;
