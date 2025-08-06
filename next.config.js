@@ -28,7 +28,13 @@ const nextConfig = {
         port: '3000',
         pathname: '/images/**',
       },
-      // Продакшен на Vercel
+      // Наш API прокси для изображений
+      {
+        protocol: 'https',
+        hostname: 'neomovies-test-api.vercel.app',
+        pathname: '/api/v1/images/**',
+      },
+      // Продакшен на Vercel (старый)
       {
         protocol: 'https',
         hostname: 'neomovies-test-api.vercel.app',

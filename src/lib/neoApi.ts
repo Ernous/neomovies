@@ -50,10 +50,17 @@ neoApi.interceptors.response.use(
 // Функция для получения URL изображения
 export const getImageUrl = (path: string | null, size: string = 'w500'): string => {
   if (!path) return '/images/placeholder.jpg';
-  // Извлекаем только ID изображения из полного пути
-  const imageId = path.split('/').pop();
-  if (!imageId) return '/images/placeholder.jpg';
-  return `${API_URL}/images/${size}/${imageId}`;
+  
+  // Если путь уже содержит полный URL, возвращаем как есть
+  if (path.startsWith('http')) {
+    return path;
+  }
+  
+  // Убираем ведущий слеш если есть
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Используем наш API прокси для изображений
+  return `${API_URL}/api/v1/images/${size}/${cleanPath}`;
 };
 
 export interface Genre {
