@@ -56,8 +56,11 @@ export const getImageUrl = (path: string | null, size: string = 'w500'): string 
     return path;
   }
   
-  // Используем прямые ссылки на TMDB
-  return `https://image.tmdb.org/t/p/${size}${path}`;
+  // Убираем ведущий слеш если есть
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Используем наш API прокси для изображений
+  return `${API_URL}/api/v1/images/${size}/${cleanPath}`;
 };
 
 export interface Genre {
