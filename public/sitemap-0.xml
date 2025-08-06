@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://neomovies.ru/admin/login</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/categories</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/favorites</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/login</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/profile</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/search</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/settings</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/terms</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://neomovies.ru/verify</loc><lastmod>2025-08-06T19:40:42.384Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+</urlset>

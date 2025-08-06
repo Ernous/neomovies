@@ -49,9 +49,9 @@ export default function HomePage() {
               Популярные
             </button>
             <button
-              onClick={() => setActiveTab('now_playing')}
+              onClick={() => setActiveTab('now-playing')}
               className={`${ 
-                activeTab === 'now_playing'
+                activeTab === 'now-playing'
                   ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-500'
               } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
@@ -59,14 +59,24 @@ export default function HomePage() {
               Новинки
             </button>
              <button
-              onClick={() => setActiveTab('top_rated')}
+              onClick={() => setActiveTab('top-rated')}
               className={`${ 
-                activeTab === 'top_rated'
+                activeTab === 'top-rated'
                   ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-500'
               } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
             >
               Топ рейтинга
+            </button>
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`${ 
+                activeTab === 'upcoming'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-500'
+              } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
+            >
+              Скоро
             </button>
           </nav>
         </div>

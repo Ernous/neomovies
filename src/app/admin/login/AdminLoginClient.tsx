@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { neoApi } from '@/lib/neoApi';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
@@ -92,7 +92,7 @@ export default function AdminLoginClient() {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/login', {
+      const response = await neoApi.post('/api/v1/auth/login', {
         email,
         password,
       });

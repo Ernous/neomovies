@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { categoriesAPI, Movie, TVShow } from '@/lib/api';
+import { categoriesAPI, Movie } from '@/lib/neoApi';
 import MovieCard from '@/components/MovieCard';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -60,10 +60,10 @@ function CategoryPage() {
           response = await categoriesAPI.getTVShowsByCategory(categoryId, page);
           const hasTvShows = response.data.results.length > 0;
           if (page === 1) setTvShowsAvailable(hasTvShows);
-          const transformedShows = response.data.results.map((show: TVShow) => ({
+          const transformedShows = response.data.results.map((show: any) => ({
             ...show,
-            title: show.name,
-            release_date: show.first_air_date,
+            title: show.name || show.title,
+            release_date: show.first_air_date || show.release_date,
           }));
           setItems(transformedShows);
           setTotalPages(response.data.total_pages);

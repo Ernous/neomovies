@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSettings } from '@/hooks/useSettings';
-import { moviesAPI, api } from '@/lib/api';
+import { moviesAPI, neoApi } from '@/lib/neoApi';
 import { AlertTriangle, Info } from 'lucide-react';
 
 interface MoviePlayerProps {
@@ -45,8 +45,8 @@ export default function MoviePlayer({ id, title, poster, imdbId, isFullscreen = 
       try {
         setLoading(true);
         setError(null);
-        const basePath = settings.defaultPlayer === 'alloha' ? '/players/alloha' : '/players/lumex';
-        const { data } = await api.get(basePath, { params: { imdb_id: resolvedImdb } });
+        const basePath = settings.defaultPlayer === 'alloha' ? '/api/v1/players/alloha' : '/api/v1/players/lumex';
+        const { data } = await neoApi.get(basePath, { params: { imdb_id: resolvedImdb } });
         if (!data) throw new Error('Empty response');
 
         let src: string | null = data.iframe || data.src || data.url || null;

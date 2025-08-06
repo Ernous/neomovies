@@ -2,7 +2,7 @@
 
 import PageLayout from '@/components/PageLayout';
 import MovieContent from './MovieContent';
-import type { MovieDetails } from '@/lib/api';
+import type { MovieDetails } from '@/lib/neoApi';
 
 interface MoviePageProps {
   movieId: string;

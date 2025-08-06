@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { categoriesAPI } from '@/lib/api';
-import { Category } from '@/lib/api';
+import { categoriesAPI, Category } from '@/lib/neoApi';
 import CategoryCard from '@/components/CategoryCard';
 
 interface CategoryWithBackground extends Category {

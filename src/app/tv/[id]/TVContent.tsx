@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { tvAPI } from '@/lib/api';
+import { tvShowsAPI } from '@/lib/neoApi';
 import { getImageUrl } from '@/lib/neoApi';
-import type { TVShowDetails } from '@/lib/api';
+import type { TVShowDetails } from '@/lib/neoApi';
 import MoviePlayer from '@/components/MoviePlayer';
 import TorrentSelector from '@/components/TorrentSelector';
 import FavoriteButton from '@/components/FavoriteButton';
@@ -185,7 +185,9 @@ export default function TVContent({ showId, initialShow }: TVContentProps) {
                 <TorrentSelector
                     imdbId={imdbId}
                     type="tv"
-                    totalSeasons={show.number_of_seasons}
+                    title={show.name}
+                    originalTitle={show.original_name}
+                    year={show.first_air_date?.split('-')[0]}
                   />
                 </div>
               )}

@@ -7,7 +7,7 @@ export const neoApi = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 30000 // Увеличиваем таймаут до 30 секунд
+  timeout: 30000
 });
 
 // Добавляем перехватчики запросов
@@ -80,10 +80,44 @@ export interface MovieResponse {
   total_results: number;
 }
 
+export interface TorrentResult {
+  title: string;
+  tracker: string;
+  size: string;
+  seeders: number;
+  peers: number;
+  leechers: number;
+  quality: string;
+  voice?: string[];
+  types?: string[];
+  seasons?: number[];
+  category: string;
+  magnet: string;
+  torrent_link?: string;
+  details?: string;
+  publish_date: string;
+  added_date?: string;
+  source: string;
+}
+
+export interface TorrentSearchResponse {
+  query: string;
+  results: TorrentResult[];
+  total: number;
+}
+
+export interface AvailableSeasonsResponse {
+  title: string;
+  originalTitle: string;
+  year: string;
+  seasons: number[];
+  total: number;
+}
+
 export const searchAPI = {
   // Поиск фильмов
   searchMovies(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/movies/search', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/search', {
       params: {
         query,
         page
@@ -94,7 +128,7 @@ export const searchAPI = {
   
   // Поиск сериалов
   searchTV(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/tv/search', {
+    return neoApi.get<MovieResponse>('/api/v1/tv/search', {
       params: {
         query,
         page
@@ -153,7 +187,7 @@ export const searchAPI = {
 export const moviesAPI = {
   // Получение популярных фильмов
   getPopular(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/popular', { 
+    return neoApi.get<MovieResponse>('/api/v1/movies/popular', { 
       params: { page },
       timeout: 30000
     });
@@ -161,7 +195,7 @@ export const moviesAPI = {
 
   // Получение фильмов с высоким рейтингом
   getTopRated(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/top_rated', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/top-rated', {
       params: { page },
       timeout: 30000
     });
@@ -169,7 +203,15 @@ export const moviesAPI = {
 
   // Получение новинок
   getNowPlaying(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/now_playing', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/now-playing', {
+      params: { page },
+      timeout: 30000
+    });
+  },
+
+  // Получение предстоящих фильмов
+  getUpcoming(page = 1) {
+    return neoApi.get<MovieResponse>('/api/v1/movies/upcoming', {
       params: { page },
       timeout: 30000
     });
@@ -177,12 +219,12 @@ export const moviesAPI = {
 
   // Получение данных о фильме по его ID
   getMovie(id: string | number) {
-    return neoApi.get(`/movies/${id}`, { timeout: 30000 });
+    return neoApi.get(`/api/v1/movies/${id}`, { timeout: 30000 });
   },
 
   // Поиск фильмов
   searchMovies(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/movies/search', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/search', {
       params: {
         query,
         page
@@ -193,14 +235,38 @@ export const moviesAPI = {
 
   // Получение IMDB ID
   getImdbId(id: string | number) {
-    return neoApi.get(`/movies/${id}/external_ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
   }
 };
 
 export const tvShowsAPI = {
   // Получение популярных сериалов
   getPopular(page = 1) {
-    return neoApi.get('/tv/popular', { 
+    return neoApi.get('/api/v1/tv/popular', { 
+      params: { page },
+      timeout: 30000
+    });
+  },
+
+  // Получение сериалов с высоким рейтингом
+  getTopRated(page = 1) {
+    return neoApi.get('/api/v1/tv/top-rated', { 
+      params: { page },
+      timeout: 30000
+    });
+  },
+
+  // Получение сериалов в эфире
+  getOnTheAir(page = 1) {
+    return neoApi.get('/api/v1/tv/on-the-air', { 
+      params: { page },
+      timeout: 30000
+    });
+  },
+
+  // Получение сериалов, которые выходят сегодня
+  getAiringToday(page = 1) {
+    return neoApi.get('/api/v1/tv/airing-today', { 
       params: { page },
       timeout: 30000
     });
@@ -208,12 +274,12 @@ export const tvShowsAPI = {
 
   // Получение данных о сериале по его ID
   getTVShow(id: string | number) {
-    return neoApi.get(`/tv/${id}`, { timeout: 30000 });
+    return neoApi.get(`/api/v1/tv/${id}`, { timeout: 30000 });
   },
 
   // Поиск сериалов
   searchTVShows(query: string, page = 1) {
-    return neoApi.get('/tv/search', {
+    return neoApi.get('/api/v1/tv/search', {
       params: {
         query,
         page
@@ -224,6 +290,96 @@ export const tvShowsAPI = {
 
   // Получение IMDB ID
   getImdbId(id: string | number) {
-    return neoApi.get(`/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+  }
+};
+
+export const torrentsAPI = {
+  // Поиск торрентов по IMDB ID
+  searchTorrents(imdbId: string, type: 'movie' | 'tv', options?: {
+    season?: number;
+    quality?: string;
+    minQuality?: string;
+    maxQuality?: string;
+    excludeQualities?: string;
+    hdr?: boolean;
+    hevc?: boolean;
+    sortBy?: string;
+    sortOrder?: string;
+    groupByQuality?: boolean;
+    groupBySeason?: boolean;
+  }) {
+    const params: any = { type };
+    
+    if (options) {
+      Object.entries(options).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (key === 'excludeQualities' && Array.isArray(value)) {
+            params[key] = value.join(',');
+          } else {
+            params[key] = value;
+          }
+        }
+      });
+    }
+
+    return neoApi.get<TorrentSearchResponse>(`/api/v1/torrents/search/${imdbId}`, {
+      params,
+      timeout: 30000
+    });
+  },
+
+  // Получение доступных сезонов для сериала
+  getAvailableSeasons(title: string, originalTitle?: string, year?: string) {
+    const params: any = { title };
+    if (originalTitle) params.originalTitle = originalTitle;
+    if (year) params.year = year;
+
+    return neoApi.get<AvailableSeasonsResponse>('/api/v1/torrents/seasons', {
+      params,
+      timeout: 30000
+    });
+  },
+
+  // Универсальный поиск торрентов по запросу
+  searchByQuery(query: string, type: 'movie' | 'tv' | 'anime' = 'movie', year?: string) {
+    const params: any = { query, type };
+    if (year) params.year = year;
+
+    return neoApi.get<TorrentSearchResponse>('/api/v1/torrents/search', {
+      params,
+      timeout: 30000
+    });
+  }
+};
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export const categoriesAPI = {
+  // Получение всех категорий
+  getCategories() {
+    return neoApi.get<{ categories: Category[] }>('/api/v1/categories');
+  },
+
+  // Получение категории по ID
+  getCategory(id: number) {
+    return neoApi.get<Category>(`/api/v1/categories/${id}`);
+  },
+
+  // Получение фильмов по категории
+  getMoviesByCategory(categoryId: number, page = 1) {
+    return neoApi.get<MovieResponse>(`/api/v1/categories/${categoryId}/movies`, {
+      params: { page }
+    });
+  },
+
+  // Получение сериалов по категории
+  getTVShowsByCategory(categoryId: number, page = 1) {
+    return neoApi.get<MovieResponse>(`/api/v1/categories/${categoryId}/tv`, {
+      params: { page }
+    });
   }
 };

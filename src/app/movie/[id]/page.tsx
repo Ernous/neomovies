@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { moviesAPI } from '@/lib/api';
+import { moviesAPI } from '@/lib/neoApi';
 import MoviePage from '@/app/movie/[id]/MoviePage';
 
 interface PageProps {

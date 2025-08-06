@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { authAPI } from '../lib/authApi';
-import { api } from '../lib/api';
+import { neoApi } from '../lib/neoApi';
 
 interface PendingRegistration {
   email: string;
@@ -40,7 +40,7 @@ export function useAuth() {
         window.dispatchEvent(new Event('auth-changed'));
       }
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      neoApi.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       router.push('/');
     } else {
       throw new Error(data?.error || 'Login failed');
@@ -83,7 +83,7 @@ export function useAuth() {
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    delete neoApi.defaults.headers.common['Authorization'];
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     if (typeof window !== 'undefined') {

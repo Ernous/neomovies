@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { moviesAPI } from '@/lib/neoApi';
 import { getImageUrl } from '@/lib/neoApi';
-import type { MovieDetails } from '@/lib/api';
+import type { MovieDetails } from '@/lib/neoApi';
 import MoviePlayer from '@/components/MoviePlayer';
 import TorrentSelector from '@/components/TorrentSelector';
 import FavoriteButton from '@/components/FavoriteButton';
@@ -182,6 +182,9 @@ export default function MovieContent({ movieId, initialMovie }: MovieContentProp
                 <TorrentSelector 
                     imdbId={imdbId}
                     type="movie"
+                    title={movie.title}
+                    originalTitle={movie.original_title}
+                    year={movie.release_date?.split('-')[0]}
                   />
               </div>
               )}
