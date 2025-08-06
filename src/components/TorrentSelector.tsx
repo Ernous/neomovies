@@ -130,7 +130,21 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
     }
 
     return list.map(torrent => {
-      const size = torrent.size;
+      // Преобразуем размер в ГБ, если это байты (число или строка)
+      let sizeLabel = '';
+      if (torrent.size) {
+        let sizeNum = Number(torrent.size);
+        if (!isNaN(sizeNum) && sizeNum > 0) {
+          // Если размер больше 1000, считаем что это байты
+          if (sizeNum > 1000 * 1000) {
+            sizeLabel = (sizeNum / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+          } else {
+            sizeLabel = torrent.size;
+          }
+        } else {
+          sizeLabel = torrent.size;
+        }
+      }
       const label = torrent.title || 'Раздача';
 
       return (
@@ -148,8 +162,8 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
             className="flex w-full items-center"
           >
             <span className="flex-1 truncate whitespace-nowrap overflow-hidden">{label}</span>
-            {size && (
-              <span className="text-xs text-muted-foreground">{size}</span>
+            {sizeLabel && (
+              <span className="text-xs text-muted-foreground">{sizeLabel}</span>
             )}
           </a>
         </Button>
