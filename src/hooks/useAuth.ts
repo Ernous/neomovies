@@ -10,40 +10,50 @@ interface PendingRegistration {
   name?: string;
 }
 
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    avatar?: string;
+    verified: boolean;
+    isAdmin: boolean;
+    adminVerified: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+}
+
 export function useAuth() {
   const router = useRouter();
   const [isVerifying, setIsVerifying] = useState(false);
   const [pending, setPending] = useState<PendingRegistration | null>(null);
 
   const login = async (email: string, password: string) => {
-    const { data } = await authAPI.login(email, password);
-    if (data?.token) {
-      localStorage.setItem('token', data.token);
+    try {
+      const response = await authAPI.login(email, password);
+      const data = response.data as LoginResponse;
+      
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
 
-      // Extract name/email either from API response or JWT payload
-      let name: string | undefined = undefined;
-      let email: string | undefined = undefined;
-      try {
-        const payload = JSON.parse(atob(data.token.split('.')[1]));
-        name = payload.name || payload.username || payload.userName || payload.sub || undefined;
-        email = payload.email || undefined;
-      } catch {
-        // silent
+        // Сохраняем информацию о пользователе
+        if (data.user?.name) localStorage.setItem('userName', data.user.name);
+        if (data.user?.email) localStorage.setItem('userEmail', data.user.email);
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth-changed'));
+        }
+
+        neoApi.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        router.push('/');
+      } else {
+        throw new Error('Login failed - no token received');
       }
-      if (!name) name = data.user?.name || data.name || data.userName;
-      if (!email) email = data.user?.email || data.email;
-
-      if (name) localStorage.setItem('userName', name);
-      if (email) localStorage.setItem('userEmail', email);
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('auth-changed'));
-      }
-
-      neoApi.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      router.push('/');
-    } else {
-      throw new Error(data?.error || 'Login failed');
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   };
 

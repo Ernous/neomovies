@@ -30,6 +30,26 @@ neoApi.interceptors.request.use(
 // Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
+    console.log('🔍 API Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
+    
+    // Обрабатываем ответы в формате {success: true, data: {...}}
+    if (response.data && typeof response.data === 'object' && 'success' in response.data && 'data' in response.data) {
+      console.log('📦 Unwrapping API response wrapper');
+      // Если это успешный ответ с оберткой, извлекаем data
+      if (response.data.success) {
+        response.data = response.data.data;
+        console.log('✅ Successfully unwrapped data:', response.data);
+      } else {
+        // Если success: false, выбрасываем ошибку
+        const errorMessage = response.data.message || 'API request failed';
+        console.error('❌ API request failed:', errorMessage);
+        throw new Error(errorMessage);
+      }
+    }
     return response;
   },
   (error) => {
@@ -37,7 +57,8 @@ neoApi.interceptors.response.use(
       status: error.response?.status,
       url: error.config?.url,
       method: error.config?.method,
-      message: error.message
+      message: error.message,
+      data: error.response?.data
     });
     return Promise.reject(error);
   }
@@ -49,7 +70,7 @@ export const getImageUrl = (path: string | null, size: string = 'w500'): string 
   // Извлекаем только ID изображения из полного пути
   const imageId = path.split('/').pop();
   if (!imageId) return '/images/placeholder.jpg';
-  return `${API_URL}/images/${size}/${imageId}`;
+  return `${API_URL}/api/v1/images/${size}/${imageId}`;
 };
 
 export interface Genre {
