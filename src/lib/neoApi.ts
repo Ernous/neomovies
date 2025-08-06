@@ -30,6 +30,10 @@ neoApi.interceptors.request.use(
 // Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
+    // Если ответ содержит обертку success/data, извлекаем данные
+    if (response.data && response.data.success && response.data.data !== undefined) {
+      response.data = response.data.data;
+    }
     return response;
   },
   (error) => {
@@ -117,7 +121,7 @@ export interface AvailableSeasonsResponse {
 export const searchAPI = {
   // Поиск фильмов
   searchMovies(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/movies/search', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/search', {
       params: {
         query,
         page
@@ -128,7 +132,7 @@ export const searchAPI = {
   
   // Поиск сериалов
   searchTV(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/tv/search', {
+    return neoApi.get<MovieResponse>('/api/v1/tv/search', {
       params: {
         query,
         page
@@ -160,7 +164,7 @@ export const searchAPI = {
 export const moviesAPI = {
   // Получение популярных фильмов
   getPopular(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/popular', { 
+    return neoApi.get<MovieResponse>('/api/v1/movies/popular', { 
       params: { page },
       timeout: 30000
     });
@@ -168,7 +172,7 @@ export const moviesAPI = {
 
   // Получение фильмов с высоким рейтингом
   getTopRated(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/top-rated', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/top-rated', {
       params: { page },
       timeout: 30000
     });
@@ -176,7 +180,7 @@ export const moviesAPI = {
 
   // Получение новинок
   getNowPlaying(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/now-playing', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/now-playing', {
       params: { page },
       timeout: 30000
     });
@@ -184,7 +188,7 @@ export const moviesAPI = {
 
   // Получение предстоящих фильмов
   getUpcoming(page = 1) {
-    return neoApi.get<MovieResponse>('/movies/upcoming', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/upcoming', {
       params: { page },
       timeout: 30000
     });
@@ -192,12 +196,12 @@ export const moviesAPI = {
 
   // Получение данных о фильме по его ID
   getMovie(id: string | number) {
-    return neoApi.get(`/movies/${id}`, { timeout: 30000 });
+    return neoApi.get(`/api/v1/movies/${id}`, { timeout: 30000 });
   },
 
   // Поиск фильмов
   searchMovies(query: string, page = 1) {
-    return neoApi.get<MovieResponse>('/movies/search', {
+    return neoApi.get<MovieResponse>('/api/v1/movies/search', {
       params: {
         query,
         page
@@ -208,14 +212,14 @@ export const moviesAPI = {
 
   // Получение IMDB ID
   getImdbId(id: string | number) {
-    return neoApi.get(`/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
   }
 };
 
 export const tvShowsAPI = {
   // Получение популярных сериалов
   getPopular(page = 1) {
-    return neoApi.get('/tv/popular', { 
+    return neoApi.get('/api/v1/tv/popular', { 
       params: { page },
       timeout: 30000
     });
@@ -223,7 +227,7 @@ export const tvShowsAPI = {
 
   // Получение сериалов с высоким рейтингом
   getTopRated(page = 1) {
-    return neoApi.get('/tv/top-rated', { 
+    return neoApi.get('/api/v1/tv/top-rated', { 
       params: { page },
       timeout: 30000
     });
@@ -231,7 +235,7 @@ export const tvShowsAPI = {
 
   // Получение сериалов в эфире
   getOnTheAir(page = 1) {
-    return neoApi.get('/tv/on-the-air', { 
+    return neoApi.get('/api/v1/tv/on-the-air', { 
       params: { page },
       timeout: 30000
     });
@@ -239,7 +243,7 @@ export const tvShowsAPI = {
 
   // Получение сериалов, которые выходят сегодня
   getAiringToday(page = 1) {
-    return neoApi.get('/tv/airing-today', { 
+    return neoApi.get('/api/v1/tv/airing-today', { 
       params: { page },
       timeout: 30000
     });
@@ -247,12 +251,12 @@ export const tvShowsAPI = {
 
   // Получение данных о сериале по его ID
   getTVShow(id: string | number) {
-    return neoApi.get(`/tv/${id}`, { timeout: 30000 });
+    return neoApi.get(`/api/v1/tv/${id}`, { timeout: 30000 });
   },
 
   // Поиск сериалов
   searchTVShows(query: string, page = 1) {
-    return neoApi.get('/tv/search', {
+    return neoApi.get('/api/v1/tv/search', {
       params: {
         query,
         page
@@ -263,7 +267,7 @@ export const tvShowsAPI = {
 
   // Получение IMDB ID
   getImdbId(id: string | number) {
-    return neoApi.get(`/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
   }
 };
 
@@ -296,7 +300,7 @@ export const torrentsAPI = {
       });
     }
 
-    return neoApi.get<TorrentSearchResponse>(`/torrents/search/${imdbId}`, {
+    return neoApi.get<TorrentSearchResponse>(`/api/v1/torrents/search/${imdbId}`, {
       params,
       timeout: 30000
     });
@@ -308,7 +312,7 @@ export const torrentsAPI = {
     if (originalTitle) params.originalTitle = originalTitle;
     if (year) params.year = year;
 
-    return neoApi.get<AvailableSeasonsResponse>('/torrents/seasons', {
+    return neoApi.get<AvailableSeasonsResponse>('/api/v1/torrents/seasons', {
       params,
       timeout: 30000
     });
@@ -319,7 +323,7 @@ export const torrentsAPI = {
     const params: any = { query, type };
     if (year) params.year = year;
 
-    return neoApi.get<TorrentSearchResponse>('/torrents/search', {
+    return neoApi.get<TorrentSearchResponse>('/api/v1/torrents/search', {
       params,
       timeout: 30000
     });
@@ -334,24 +338,24 @@ export interface Category {
 export const categoriesAPI = {
   // Получение всех категорий
   getCategories() {
-    return neoApi.get<{ categories: Category[] }>('/categories');
+    return neoApi.get<{ categories: Category[] }>('/api/v1/categories');
   },
 
   // Получение категории по ID
   getCategory(id: number) {
-    return neoApi.get<Category>(`/categories/${id}`);
+    return neoApi.get<Category>(`/api/v1/categories/${id}`);
   },
 
   // Получение фильмов по категории
   getMoviesByCategory(categoryId: number, page = 1) {
-    return neoApi.get<MovieResponse>(`/categories/${categoryId}/movies`, {
+    return neoApi.get<MovieResponse>(`/api/v1/categories/${categoryId}/movies`, {
       params: { page }
     });
   },
 
   // Получение сериалов по категории
   getTVShowsByCategory(categoryId: number, page = 1) {
-    return neoApi.get<MovieResponse>(`/categories/${categoryId}/tv`, {
+    return neoApi.get<MovieResponse>(`/api/v1/categories/${categoryId}/tv`, {
       params: { page }
     });
   }
