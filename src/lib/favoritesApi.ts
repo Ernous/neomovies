@@ -1,23 +1,23 @@
 import { neoApi } from './neoApi';
 
 export const favoritesAPI = {
-  // Получить все избранные
+  // Получение всех избранных
   getFavorites() {
     return neoApi.get('/api/v1/favorites');
   },
 
-  // Добавить в избранное
-  addFavorite(data: { mediaId: string; mediaType: 'movie' | 'tv', title: string, posterPath: string }) {
-    const { mediaId, mediaType, title, posterPath } = data;
-    return neoApi.post(`/api/v1/favorites/${mediaId}?mediaType=${mediaType}`, { title, posterPath });
+  // Добавление в избранное
+  addFavorite(data: { mediaId: string; mediaType: string; title: string; posterPath?: string }) {
+    const { mediaId, mediaType, ...rest } = data;
+    return neoApi.post(`/api/v1/favorites/${mediaId}?mediaType=${mediaType}`, rest);
   },
 
-  // Удалить из избранного
+  // Удаление из избранного
   removeFavorite(mediaId: string) {
     return neoApi.delete(`/api/v1/favorites/${mediaId}`);
   },
 
-  // Проверить есть ли в избранном
+  // Проверка, добавлен ли в избранное
   checkFavorite(mediaId: string) {
     return neoApi.get(`/api/v1/favorites/check/${mediaId}`);
   }

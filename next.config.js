@@ -31,7 +31,7 @@ const nextConfig = {
       // Продакшен на Vercel
       {
         protocol: 'https',
-        hostname: 'neomovies-api.vercel.app',
+        hostname: 'neomovies-test-api.vercel.app',
         pathname: '/images/**',
       },
       {

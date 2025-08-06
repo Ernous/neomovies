@@ -30,6 +30,10 @@ neoApi.interceptors.request.use(
 // Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
+    // Если ответ содержит обертку success/data, извлекаем данные
+    if (response.data && response.data.success && response.data.data !== undefined) {
+      response.data = response.data.data;
+    }
     return response;
   },
   (error) => {
@@ -137,46 +141,19 @@ export const searchAPI = {
     });
   },
 
-  // Мультипоиск (фильмы и сериалы)
+  // Мультипоиск (фильмы и сериалы) - новый эндпоинт
   async multiSearch(query: string, page = 1) {
-    // Запускаем параллельные запросы к фильмам и сериалам
     try {
-      const [moviesResponse, tvResponse] = await Promise.all([
-        this.searchMovies(query, page),
-        this.searchTV(query, page)
-      ]);
+      // Используем новый эндпоинт Go API
+      const response = await neoApi.get<MovieResponse>('/search/multi', {
+        params: {
+          query,
+          page
+        },
+        timeout: 30000
+      });
       
-      // Объединяем результаты
-      const moviesData = moviesResponse.data;
-      const tvData = tvResponse.data;
-      
-      // Метаданные для пагинации
-      const totalResults = (moviesData.total_results || 0) + (tvData.total_results || 0);
-      const totalPages = Math.max(moviesData.total_pages || 0, tvData.total_pages || 0);
-      
-      // Добавляем информацию о типе контента
-      const moviesWithType = (moviesData.results || []).map(movie => ({
-        ...movie,
-        media_type: 'movie'
-      }));
-      
-      const tvWithType = (tvData.results || []).map(show => ({
-        ...show,
-        media_type: 'tv'
-      }));
-      
-      // Объединяем и сортируем по популярности
-      const combinedResults = [...moviesWithType, ...tvWithType]
-        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-      
-      return {
-        data: {
-          page: parseInt(String(page)),
-          results: combinedResults,
-          total_pages: totalPages,
-          total_results: totalResults
-        }
-      };
+      return response;
     } catch (error) {
       console.error('Error in multiSearch:', error);
       throw error;
