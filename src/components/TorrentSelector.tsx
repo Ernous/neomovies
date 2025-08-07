@@ -85,9 +85,7 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
 
   // Получение доступных сезонов для TV
   useEffect(() => {
-    if (type === 'tv' && title && availableSeasons.length === 0) {
-      fetchAvailableSeasons();
-    }
+    // Для сериалов больше не делаем запрос к getAvailableSeasons, так как endpoint не существует
   }, [type, title, originalTitle, year]);
 
   // Загрузка торрентов
@@ -96,51 +94,31 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
     fetchTorrents();
   }, [imdbId, type]);
 
-  const fetchAvailableSeasons = async () => {
-    if (!title) return;
-    
-    try {
-      const response = await torrentsAPI.getAvailableSeasons(title, originalTitle, year);
-      setAvailableSeasons(response.data.seasons || []);
-    } catch (err) {
-      console.error('Failed to fetch available seasons:', err);
-      setAvailableSeasons([]);
-    }
-  };
-
   const fetchTorrents = async () => {
     setLoading(true);
     setError(null);
     try {
-      const options: any = {};
-      const response = await torrentsAPI.searchTorrents(imdbId!, type, options);
-      
+      let response;
+      if (type === 'tv') {
+        // Для сериалов не указываем type, только imdbId
+        response = await torrentsAPI.searchTorrents(imdbId!);
+      } else {
+        // Для фильмов оставляем type
+        response = await torrentsAPI.searchTorrents(imdbId!, type);
+      }
       if (response.data.total === 0) {
         setError('Торренты не найдены.');
       } else {
-        // Обрабатываем торренты и добавляем парсинг
         const parsedTorrents: ParsedTorrent[] = response.data.results.map(torrent => ({
           ...torrent,
           quality: parseQuality(torrent.title || ''),
           season: type === 'tv' ? parseSeason(torrent.title || '') : undefined,
           sizeFormatted: formatSize(torrent.size || 0)
         }));
-        
         setTorrents(parsedTorrents);
-        
-        // Автоматически извлекаем сезоны из торрентов если API не вернул их
-        if (type === 'tv' && availableSeasons.length === 0) {
-          const seasons = [...new Set(parsedTorrents
-            .map(t => t.season)
-            .filter(s => s !== undefined)
-            .sort((a, b) => a! - b!))] as number[];
-          if (seasons.length > 0) {
-            setAvailableSeasons(seasons);
-          }
-        }
+        // Для сериалов не делаем автоматическое извлечение сезонов, так как API не поддерживает
       }
     } catch (err) {
-      console.error(err);
       setError('Не удалось загрузить список торрентов.');
     } finally {
       setLoading(false);
