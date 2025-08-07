@@ -164,23 +164,16 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
       filtered = filtered.filter(torrent => torrent.quality === selectedQuality);
     }
     
-    // Сортировка по качеству (лучшее качество сверху) и размеру
+    // Сортировка по качеству (лучшее качество сверху)
     return filtered.sort((a, b) => {
       const qualityOrder = ['4K', '2160P', '1080P', '720P', '480P', 'HDTV', 'WEBRIP', 'BDRIP', 'DVDRIP'];
       const aQualityIndex = qualityOrder.indexOf(a.quality || '');
       const bQualityIndex = qualityOrder.indexOf(b.quality || '');
       
-      // Сначала сортируем по качеству
-      if (aQualityIndex !== bQualityIndex) {
-        if (aQualityIndex === -1) return 1;
-        if (bQualityIndex === -1) return -1;
-        return aQualityIndex - bQualityIndex;
-      }
-      
-      // Затем по размеру (больший размер сверху для одинакового качества)
-      const aSize = Number(a.size) || 0;
-      const bSize = Number(b.size) || 0;
-      return bSize - aSize;
+      if (aQualityIndex === -1 && bQualityIndex === -1) return 0;
+      if (aQualityIndex === -1) return 1;
+      if (bQualityIndex === -1) return -1;
+      return aQualityIndex - bQualityIndex;
     });
   }, [torrents, selectedSeason, selectedQuality, type, availableSeasons]);
 
