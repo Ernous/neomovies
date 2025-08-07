@@ -16,40 +16,39 @@ export function useAuth() {
   const [pending, setPending] = useState<PendingRegistration | null>(null);
 
   const login = async (email: string, password: string) => {
-    console.log('🔍 Debug: Отправляем запрос на логин');
-    console.log('🔍 Debug: Email:', email);
-    console.log('🔍 Debug: API URL:', process.env.NEXT_PUBLIC_API_URL);
-    
-    const response = await authAPI.login(email, password);
-    // API возвращает { success: true, data: { token, user } }
-    const data = response.data.data || response.data;
-    if (data?.token) {
-      localStorage.setItem('token', data.token);
-
-      // Extract name/email either from API response or JWT payload
-      let name: string | undefined = undefined;
-      let email: string | undefined = undefined;
-      try {
-        const payload = JSON.parse(atob(data.token.split('.')[1]));
-        name = payload.name || payload.username || payload.userName || payload.sub || undefined;
-        email = payload.email || undefined;
-      } catch {
-        // silent
+    try {
+      const response = await authAPI.login(email, password);
+      // API возвращает { success: true, data: { token, user } }
+      const data = response.data.data || response.data;
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        // Extract name/email either from API response or JWT payload
+        let name: string | undefined = undefined;
+        let emailVal: string | undefined = undefined;
+        try {
+          const payload = JSON.parse(atob(data.token.split('.')[1]));
+          name = payload.name || payload.username || payload.userName || payload.sub || undefined;
+          emailVal = payload.email || undefined;
+        } catch {
+          // silent
+        }
+        if (!name) name = data.user?.name || data.name || data.userName;
+        if (!emailVal) emailVal = data.user?.email || data.email;
+        if (name) localStorage.setItem('userName', name);
+        if (emailVal) localStorage.setItem('userEmail', emailVal);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth-changed'));
+        }
+        neoApi.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        router.push('/');
+      } else {
+        throw new Error(data?.error || 'Login failed');
       }
-      if (!name) name = data.user?.name || data.name || data.userName;
-      if (!email) email = data.user?.email || data.email;
-
-      if (name) localStorage.setItem('userName', name);
-      if (email) localStorage.setItem('userEmail', email);
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('auth-changed'));
+    } catch (err: any) {
+      if (err?.response?.status === 401 || err?.response?.status === 400) {
+        throw new Error('Неверный логин или пароль');
       }
-
-      neoApi.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      router.push('/');
-    } else {
-      throw new Error(data?.error || 'Login failed');
+      throw new Error(err?.message || 'Произошла ошибка');
     }
   };
 

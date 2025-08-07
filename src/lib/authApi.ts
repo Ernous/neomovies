@@ -14,9 +14,6 @@ export const authAPI = {
     return neoApi.post('/api/v1/auth/check-verification', { email });
   },
   login: (email: string, password: string) => {
-    console.log('🔍 Debug: authAPI.login вызван');
-    console.log('🔍 Debug: URL:', '/api/v1/auth/login');
-    console.log('🔍 Debug: Body:', { email, password });
     return neoApi.post('/api/v1/auth/login', { email, password });
   },
   deleteAccount: () => {
