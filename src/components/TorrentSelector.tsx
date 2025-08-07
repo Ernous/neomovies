@@ -88,6 +88,19 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
     // Для сериалов больше не делаем запрос к getAvailableSeasons, так как endpoint не существует
   }, [type, title, originalTitle, year]);
 
+  // Автоматически определяем доступные сезоны для сериалов из торрентов
+  useEffect(() => {
+    if (type === 'tv' && torrents && torrents.length > 0) {
+      const seasons = [...new Set(
+        torrents
+          .map(t => t.season)
+          .filter(s => s !== undefined)
+          .sort((a, b) => a! - b!)
+      )] as number[];
+      setAvailableSeasons(seasons);
+    }
+  }, [type, torrents]);
+
   // Загрузка торрентов
   useEffect(() => {
     if (!imdbId) return;
@@ -343,7 +356,7 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
               
               {/* Фильтр по сезонам для TV - кнопки */}
               {type === 'tv' && availableSeasons.length > 0 && (
-                <div>
+                <div className="mb-4">
                   <label className="text-sm font-medium mb-3 block">Сезон</label>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -354,10 +367,7 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
                       Все сезоны
                     </Button>
                     {availableSeasons.map(season => {
-                      const count = torrents.filter(t => 
-                        t.season === season &&
-                        (selectedQuality === 'all' || t.quality === selectedQuality)
-                      ).length;
+                      const count = torrents?.filter(t => t.season === season && (selectedQuality === 'all' || t.quality === selectedQuality)).length || 0;
                       return (
                         <Button
                           key={season}
