@@ -18,20 +18,16 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       const response = await authAPI.login(email, password);
-      // API возвращает { success: true, data: { token, user } }
       const data = response.data.data || response.data;
       if (data?.token) {
         localStorage.setItem('token', data.token);
-        // Extract name/email either from API response or JWT payload
         let name: string | undefined = undefined;
         let emailVal: string | undefined = undefined;
         try {
           const payload = JSON.parse(atob(data.token.split('.')[1]));
           name = payload.name || payload.username || payload.userName || payload.sub || undefined;
           emailVal = payload.email || undefined;
-        } catch {
-          // silent
-        }
+        } catch {}
         if (!name) name = data.user?.name || data.name || data.userName;
         if (!emailVal) emailVal = data.user?.email || data.email;
         if (name) localStorage.setItem('userName', name);
@@ -71,14 +67,11 @@ export function useAuth() {
         setPending(pendingData);
       }
     }
-
     if (!pendingData) {
       throw new Error('Сессия подтверждения истекла. Пожалуйста, попробуйте зарегистрироваться снова.');
     }
-    
     await authAPI.verify(pendingData.email, code);
     await login(pendingData.email, pendingData.password);
-    
     if (typeof window !== 'undefined') {
       localStorage.removeItem('pendingVerification');
     }

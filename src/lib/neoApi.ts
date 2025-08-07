@@ -10,10 +10,8 @@ export const neoApi = axios.create({
   timeout: 30000
 });
 
-// Добавляем перехватчики запросов
 neoApi.interceptors.request.use(
   (config) => {
-    // Debug-логи убраны
     if (config.params?.page) {
       const page = parseInt(config.params.page);
       if (isNaN(page) || page < 1) {
@@ -28,10 +26,8 @@ neoApi.interceptors.request.use(
   }
 );
 
-// Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
-    // Debug-логи убраны
     if (response.data && response.data.success && response.data.data !== undefined) {
       response.data = response.data.data;
     }
@@ -50,19 +46,12 @@ neoApi.interceptors.response.use(
   }
 );
 
-// Функция для получения URL изображения
 export const getImageUrl = (path: string | null, size: string = 'w500'): string => {
   if (!path) return '/images/placeholder.jpg';
-  
-  // Если путь уже содержит полный URL, возвращаем как есть
   if (path.startsWith('http')) {
     return path;
   }
-  
-  // Убираем ведущий слеш если есть
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
-  // Используем наш API прокси для изображений
   return `${API_URL}/api/v1/images/${size}/${cleanPath}`;
 };
 
