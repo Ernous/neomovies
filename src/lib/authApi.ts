@@ -10,6 +10,9 @@ export const authAPI = {
   verify: (email: string, code: string) => {
     return neoApi.post('/api/v1/auth/verify', { email, code });
   },
+  checkVerification: (email: string) => {
+    return neoApi.post('/api/v1/auth/check-verification', { email });
+  },
   login: (email: string, password: string) => {
     return neoApi.post('/api/v1/auth/login', { email, password });
   },

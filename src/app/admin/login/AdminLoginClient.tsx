@@ -92,7 +92,7 @@ export default function AdminLoginClient() {
     setIsLoading(true);
 
     try {
-      const response = await neoApi.post('/auth/login', {
+      const response = await neoApi.post('/api/v1/auth/login', {
         email,
         password,
       });

@@ -18,7 +18,7 @@ export function useUser() {
   const login = async (email: string, password: string) => {
     try {
       // Сначала проверяем, верифицирован ли аккаунт
-      const verificationCheck = await fetch('/api/auth/check-verification', {
+      const verificationCheck = await fetch('/api/v1/auth/check-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -28,7 +28,7 @@ export function useUser() {
 
       if (!isVerified) {
         // Если аккаунт не верифицирован, отправляем новый код и переходим к верификации
-        const verificationResponse = await fetch('/api/auth/verify', {
+        const verificationResponse = await fetch('/api/v1/auth/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
@@ -62,7 +62,7 @@ export function useUser() {
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
@@ -74,7 +74,7 @@ export function useUser() {
       }
 
       // Отправляем код подтверждения
-      const verificationResponse = await fetch('/api/auth/verify', {
+      const verificationResponse = await fetch('/api/v1/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -98,7 +98,7 @@ export function useUser() {
     }
 
     try {
-      const response = await fetch('/api/auth/verify', {
+      const response = await fetch('/api/v1/auth/verify', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
