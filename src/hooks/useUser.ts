@@ -43,15 +43,29 @@ export function useUser() {
         return;
       }
 
-      // Если аккаунт верифицирован, выполняем вход
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
+      // Если аккаунт верифицирован, выполняем вход через наш API
+      const loginResponse = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      if (result?.error) {
-        throw new Error(result.error);
+      if (!loginResponse.ok) {
+        const data = await loginResponse.json();
+        throw new Error(data.error || 'Неверный email или пароль');
+      }
+
+      const loginData = await loginResponse.json();
+      const { token, user } = loginData.data || loginData;
+
+      if (token) {
+        localStorage.setItem('token', token);
+        if (user?.name) localStorage.setItem('userName', user.name);
+        if (user?.email) localStorage.setItem('userEmail', user.email);
+        
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth-changed'));
+        }
       }
 
       router.push('/');
@@ -112,15 +126,32 @@ export function useUser() {
         throw new Error(data.error || 'Неверный код подтверждения');
       }
 
-      // После успешной верификации выполняем вход
-      const result = await signIn('credentials', {
-        redirect: false,
-        email: pendingRegistration.email,
-        password: pendingRegistration.password,
+      // После успешной верификации выполняем вход через наш API
+      const loginResponse = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: pendingRegistration.email, 
+          password: pendingRegistration.password 
+        })
       });
 
-      if (result?.error) {
-        throw new Error(result.error);
+      if (!loginResponse.ok) {
+        const data = await loginResponse.json();
+        throw new Error(data.error || 'Ошибка входа после верификации');
+      }
+
+      const loginData = await loginResponse.json();
+      const { token, user } = loginData.data || loginData;
+
+      if (token) {
+        localStorage.setItem('token', token);
+        if (user?.name) localStorage.setItem('userName', user.name);
+        if (user?.email) localStorage.setItem('userEmail', user.email);
+        
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth-changed'));
+        }
       }
 
       setIsVerifying(false);
@@ -132,7 +163,15 @@ export function useUser() {
   };
 
   const logout = () => {
-    signOut({ callbackUrl: '/login' });
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('auth-changed'));
+    }
+    
+    router.push('/login');
   };
 
   return {
