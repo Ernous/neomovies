@@ -97,7 +97,8 @@ export default function AdminLoginClient() {
         password,
       });
 
-      const { token, user } = response.data;
+      // API возвращает { success: true, data: { token, user } }
+      const { token, user } = response.data.data || response.data;
 
       if (user?.role !== 'admin') {
         setError('У вас нет прав администратора.');

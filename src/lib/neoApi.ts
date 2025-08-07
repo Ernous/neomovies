@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://neomovies-test-api.vercel.app';
 
 export const neoApi = axios.create({
   baseURL: API_URL,
