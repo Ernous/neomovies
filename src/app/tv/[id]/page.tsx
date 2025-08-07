@@ -10,7 +10,6 @@ interface PageProps {
   };
 }
 
-// Генерация метаданных для страницы
 export async function generateMetadata(props: Promise<PageProps>): Promise<Metadata> {
   const { params } = await props;
   try {
@@ -29,7 +28,6 @@ export async function generateMetadata(props: Promise<PageProps>): Promise<Metad
   }
 }
 
-// Получение данных для страницы
 async function getData(id: string) {
   try {
     const { data: show } = await tvShowsAPI.getTVShow(id);

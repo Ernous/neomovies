@@ -40,7 +40,6 @@ const userSchema = new Schema<IUser>({
   timestamps: true,
 });
 
-// Не включаем пароль в запросы по умолчанию
 userSchema.set('toJSON', {
   transform: function(doc, ret) {
     delete ret.password;
@@ -48,7 +47,6 @@ userSchema.set('toJSON', {
   }
 });
 
-// Хэшируем пароль перед сохранением
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
 
@@ -61,7 +59,6 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Метод для проверки пароля
 userSchema.methods.comparePassword = async function(candidatePassword: string) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);

@@ -20,29 +20,28 @@ interface TVContentProps {
 
 export default function TVContent({ showId, initialShow }: TVContentProps) {
   const [show] = useState<TVShowDetails>(initialShow);
+  const [externalIds, setExternalIds] = useState<any>(null);
   const [imdbId, setImdbId] = useState<string | null>(null);
   const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(false);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const fetchImdbId = async () => {
+    const fetchExternalIds = async () => {
       try {
-        // Используем dedicated эндпоинт для получения IMDb ID
-        const { data } = await tvShowsAPI.getImdbId(showId);
+        const data = await tvShowsAPI.getExternalIds(showId);
+        setExternalIds(data);
         if (data?.imdb_id) {
           setImdbId(data.imdb_id);
         }
       } catch (err) {
-        console.error('Error fetching IMDb ID:', err);
+        console.error('Error fetching external ids:', err);
       }
     };
-
-    // Проверяем, есть ли ID в initialShow, чтобы избежать лишнего запроса
     if (initialShow.external_ids?.imdb_id) {
       setImdbId(initialShow.external_ids.imdb_id);
     } else {
-      fetchImdbId();
+      fetchExternalIds();
     }
   }, [showId, initialShow.external_ids]);
 

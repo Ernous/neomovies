@@ -20,23 +20,25 @@ interface MovieContentProps {
 
 export default function MovieContent({ movieId, initialMovie }: MovieContentProps) {
   const [movie] = useState<MovieDetails>(initialMovie);
+  const [externalIds, setExternalIds] = useState<any>(null);
   const [imdbId, setImdbId] = useState<string | null>(null);
   const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(false);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const fetchImdbId = async () => {
+    const fetchExternalIds = async () => {
       try {
-        const { data } = await moviesAPI.getMovie(movieId);
+        const data = await moviesAPI.getExternalIds(movieId);
+        setExternalIds(data);
         if (data?.imdb_id) {
           setImdbId(data.imdb_id);
         }
       } catch (err) {
-        console.error('Error fetching IMDb ID:', err);
+        console.error('Error fetching external ids:', err);
       }
     };
-    fetchImdbId();
+    fetchExternalIds();
   }, [movieId]);
 
   const showControls = () => {

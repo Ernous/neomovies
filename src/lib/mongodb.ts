@@ -29,32 +29,26 @@ export async function connectToDatabase() {
   return { db, client };
 }
 
-// Инициализация MongoDB
 export async function initMongoDB() {
   try {
     const { db } = await connectToDatabase();
 
-    // Создаем уникальный индекс для избранного
     await db.collection('favorites').createIndex(
       { userId: 1, mediaId: 1, mediaType: 1 },
       { unique: true }
     );
 
-    console.log('MongoDB initialized successfully');
   } catch (error) {
     console.error('Error initializing MongoDB:', error);
     throw error;
   }
 }
 
-// Функция для сброса и создания индексов
 export async function resetIndexes() {
   const { db } = await connectToDatabase();
   
-  // Удаляем все индексы из коллекции favorites
   await db.collection('favorites').dropIndexes();
   
-  // Создаем новый правильный индекс
   await db.collection('favorites').createIndex(
     { userId: 1, mediaId: 1, mediaType: 1 },
     { unique: true }

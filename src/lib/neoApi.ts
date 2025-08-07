@@ -10,18 +10,8 @@ export const neoApi = axios.create({
   timeout: 30000
 });
 
-// Добавляем перехватчики запросов
 neoApi.interceptors.request.use(
   (config) => {
-    console.log('🔍 Debug: Отправляем запрос:', {
-      method: config.method,
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      headers: config.headers,
-      data: config.data
-    });
-    
     if (config.params?.page) {
       const page = parseInt(config.params.page);
       if (isNaN(page) || page < 1) {
@@ -36,16 +26,8 @@ neoApi.interceptors.request.use(
   }
 );
 
-// Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
-    console.log('🔍 Debug: Получен ответ:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data
-    });
-    
-    // Если ответ содержит обертку success/data, извлекаем данные
     if (response.data && response.data.success && response.data.data !== undefined) {
       response.data = response.data.data;
     }
@@ -64,19 +46,12 @@ neoApi.interceptors.response.use(
   }
 );
 
-// Функция для получения URL изображения
 export const getImageUrl = (path: string | null, size: string = 'w500'): string => {
   if (!path) return '/images/placeholder.jpg';
-  
-  // Если путь уже содержит полный URL, возвращаем как есть
   if (path.startsWith('http')) {
     return path;
   }
-  
-  // Убираем ведущий слеш если есть
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
-  // Используем наш API прокси для изображений
   return `${API_URL}/api/v1/images/${size}/${cleanPath}`;
 };
 
@@ -234,9 +209,9 @@ export const moviesAPI = {
     });
   },
 
-  // Получение IMDB ID
-  getImdbId(id: string | number) {
-    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+  // Получение IMDB и других external ids
+  getExternalIds(id: string | number) {
+    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data);
   }
 };
 
@@ -289,9 +264,9 @@ export const tvShowsAPI = {
     });
   },
 
-  // Получение IMDB ID
-  getImdbId(id: string | number) {
-    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+  // Получение IMDB и других external ids
+  getExternalIds(id: string | number) {
+    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data);
   }
 };
 

@@ -13,14 +13,12 @@ function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Загрузка категорий и фоновых изображений для них
   useEffect(() => {
     async function fetchCategoriesAndBackgrounds() {
       setError(null);
       setLoading(true);
       
       try {
-        // Получаем список категорий
         const categoriesResponse = await categoriesAPI.getCategories();
         
         if (!categoriesResponse.data.categories || categoriesResponse.data.categories.length === 0) {
@@ -29,14 +27,11 @@ function CategoriesPage() {
           return;
         }
         
-        // Добавляем фоновые изображения для каждой категории
         const categoriesWithBackgrounds: CategoryWithBackground[] = await Promise.all(
           categoriesResponse.data.categories.map(async (category: Category) => {
             try {
-              // Сначала пробуем получить фильм для фона
               const moviesResponse = await categoriesAPI.getMoviesByCategory(category.id, 1);
               
-              // Проверяем, есть ли фильмы в данной категории
               if (moviesResponse.data.results && moviesResponse.data.results.length > 0) {
                 const backgroundUrl = moviesResponse.data.results[0].backdrop_path || 
                                     moviesResponse.data.results[0].poster_path;
@@ -46,7 +41,6 @@ function CategoriesPage() {
                   backgroundUrl
                 };
               } else {
-                // Если фильмов нет, пробуем получить сериалы
                 const tvResponse = await categoriesAPI.getTVShowsByCategory(category.id, 1);
                 
                 if (tvResponse.data.results && tvResponse.data.results.length > 0) {
@@ -60,14 +54,13 @@ function CategoriesPage() {
                 }
               }
               
-              // Если ни фильмов, ни сериалов не найдено
               return {
                 ...category,
                 backgroundUrl: undefined
               };
             } catch (error) {
               console.error(`Error fetching background for category ${category.id}:`, error);
-              return category; // Возвращаем категорию без фона в случае ошибки
+              return category;
             }
           })
         );
