@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertTriangle, Copy, Check, Download, ExternalLink } from 'lucide-react';
 import { torrentsAPI, type TorrentResult } from '@/lib/neoApi';
 
@@ -331,45 +330,68 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
           
           <div className="space-y-4">
             {/* Фильтры */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Фильтр по качеству */}
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">Качество</label>
-                <Select value={selectedQuality} onValueChange={setSelectedQuality}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите качество" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все качества</SelectItem>
-                    {availableQualities.map(quality => (
-                      <SelectItem key={quality} value={quality!}>
-                        {quality}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-4">
+              {/* Фильтр по качеству - кнопки */}
+              {availableQualities.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium mb-3 block">Качество</label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant={selectedQuality === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedQuality('all')}
+                    >
+                      Все ({torrents.length})
+                    </Button>
+                    {availableQualities.map(quality => {
+                      const count = torrents.filter(t => 
+                        t.quality === quality && 
+                        (type !== 'tv' || selectedSeason === null || availableSeasons.length === 0 || t.season === selectedSeason)
+                      ).length;
+                      return (
+                        <Button
+                          key={quality}
+                          variant={selectedQuality === quality ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSelectedQuality(quality!)}
+                        >
+                          {quality} ({count})
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               
-              {/* Фильтр по сезонам для TV */}
+              {/* Фильтр по сезонам для TV - кнопки */}
               {type === 'tv' && availableSeasons.length > 0 && (
-                <div className="flex-1">
-                  <label className="text-sm font-medium mb-2 block">Сезон</label>
-                  <Select 
-                    value={selectedSeason?.toString() || 'all'} 
-                    onValueChange={(value) => setSelectedSeason(value === 'all' ? null : parseInt(value))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите сезон" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все сезоны</SelectItem>
-                      {availableSeasons.map(season => (
-                        <SelectItem key={season} value={season.toString()}>
-                          Сезон {season}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div>
+                  <label className="text-sm font-medium mb-3 block">Сезон</label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant={selectedSeason === null ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedSeason(null)}
+                    >
+                      Все сезоны
+                    </Button>
+                    {availableSeasons.map(season => {
+                      const count = torrents.filter(t => 
+                        t.season === season &&
+                        (selectedQuality === 'all' || t.quality === selectedQuality)
+                      ).length;
+                      return (
+                        <Button
+                          key={season}
+                          variant={selectedSeason === season ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSelectedSeason(season)}
+                        >
+                          Сезон {season} ({count})
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
