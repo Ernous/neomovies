@@ -88,6 +88,19 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
     // Для сериалов больше не делаем запрос к getAvailableSeasons, так как endpoint не существует
   }, [type, title, originalTitle, year]);
 
+  // Автоматически определяем доступные сезоны для сериалов из торрентов
+  useEffect(() => {
+    if (type === 'tv' && torrents && torrents.length > 0) {
+      const seasons = [...new Set(
+        torrents
+          .map(t => t.season)
+          .filter(s => s !== undefined)
+          .sort((a, b) => a! - b!)
+      )] as number[];
+      setAvailableSeasons(seasons);
+    }
+  }, [type, torrents]);
+
   // Загрузка торрентов
   useEffect(() => {
     if (!imdbId) return;
