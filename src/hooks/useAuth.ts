@@ -16,6 +16,10 @@ export function useAuth() {
   const [pending, setPending] = useState<PendingRegistration | null>(null);
 
   const login = async (email: string, password: string) => {
+    console.log('🔍 Debug: Отправляем запрос на логин');
+    console.log('🔍 Debug: Email:', email);
+    console.log('🔍 Debug: API URL:', process.env.NEXT_PUBLIC_API_URL);
+    
     const response = await authAPI.login(email, password);
     // API возвращает { success: true, data: { token, user } }
     const data = response.data.data || response.data;

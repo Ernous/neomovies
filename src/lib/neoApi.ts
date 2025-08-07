@@ -13,6 +13,15 @@ export const neoApi = axios.create({
 // Добавляем перехватчики запросов
 neoApi.interceptors.request.use(
   (config) => {
+    console.log('🔍 Debug: Отправляем запрос:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      headers: config.headers,
+      data: config.data
+    });
+    
     if (config.params?.page) {
       const page = parseInt(config.params.page);
       if (isNaN(page) || page < 1) {
@@ -30,6 +39,12 @@ neoApi.interceptors.request.use(
 // Добавляем перехватчики ответов
 neoApi.interceptors.response.use(
   (response) => {
+    console.log('🔍 Debug: Получен ответ:', {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data
+    });
+    
     // Если ответ содержит обертку success/data, извлекаем данные
     if (response.data && response.data.success && response.data.data !== undefined) {
       response.data = response.data.data;
@@ -39,9 +54,11 @@ neoApi.interceptors.response.use(
   (error) => {
     console.error('❌ Response Error:', {
       status: error.response?.status,
+      statusText: error.response?.statusText,
       url: error.config?.url,
       method: error.config?.method,
-      message: error.message
+      message: error.message,
+      data: error.response?.data
     });
     return Promise.reject(error);
   }
