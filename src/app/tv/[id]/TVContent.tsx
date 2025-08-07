@@ -29,7 +29,7 @@ export default function TVContent({ showId, initialShow }: TVContentProps) {
     const fetchImdbId = async () => {
       try {
         // Используем dedicated эндпоинт для получения IMDb ID
-        const { data } = await tvAPI.getImdbId(showId);
+        const { data } = await tvShowsAPI.getImdbId(showId);
         if (data?.imdb_id) {
           setImdbId(data.imdb_id);
         }
