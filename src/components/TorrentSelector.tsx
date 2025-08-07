@@ -24,12 +24,12 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
 
   // Для TV показов получаем доступные сезоны из названий торрентов
   useEffect(() => {
-    if (type === 'tv' && title && !availableSeasons.length) {
+    if (type === 'tv' && title && availableSeasons.length === 0) {
       fetchAvailableSeasons();
     }
   }, [type, title, originalTitle, year]);
 
-  // Для TV показов автоматически выбираем первый сезон
+  // Для TV показов автоматически выбираем первый сезон, если есть сезоны
   useEffect(() => {
     if (type === 'tv' && availableSeasons.length > 0 && !selectedSeason) {
       setSelectedSeason(availableSeasons[0]);
@@ -38,16 +38,19 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
 
   useEffect(() => {
     if (!imdbId) return;
-    
     // Для фильмов загружаем сразу
     if (type === 'movie') {
       fetchTorrents();
     }
-    // Для TV показов загружаем только когда выбран сезон
-    else if (type === 'tv' && selectedSeason) {
-      fetchTorrents();
+    // Для TV: если есть сезоны — по сезону, если нет сезонов — все раздачи
+    else if (type === 'tv') {
+      if (availableSeasons.length === 0) {
+        fetchTorrents(); // без параметра season
+      } else if (selectedSeason) {
+        fetchTorrents();
+      }
     }
-  }, [imdbId, type, selectedSeason]);
+  }, [imdbId, type, selectedSeason, availableSeasons.length]);
 
   const fetchAvailableSeasons = async () => {
     if (!title) return;
@@ -68,13 +71,11 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
     setSelectedMagnet(null);
     try {
       const options: any = {};
-      
-      if (type === 'tv' && selectedSeason) {
+      // Для сериалов добавляем параметр season только если есть сезоны и выбран сезон
+      if (type === 'tv' && availableSeasons.length > 0 && selectedSeason) {
         options.season = selectedSeason;
       }
-      
       const response = await torrentsAPI.searchTorrents(imdbId!, type, options);
-      
       if (response.data.total === 0) {
         setError('Торренты не найдены.');
       } else {
@@ -185,7 +186,8 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
         </div>
       )}
 
-      {selectedSeason && torrents && (
+      {/* Для сериалов: показываем раздачи если выбран сезон или если сезонов нет вообще */}
+      {(type === 'movie' || (type === 'tv' && (selectedSeason || availableSeasons.length === 0)) ) && torrents && (
         <div>
           <h3 className="text-lg font-semibold mb-2">Раздачи</h3>
           <div className="space-y-2">
