@@ -234,9 +234,9 @@ export const moviesAPI = {
     });
   },
 
-  // Получение IMDB ID
-  getImdbId(id: string | number) {
-    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+  // Получение IMDB и других external ids
+  getExternalIds(id: string | number) {
+    return neoApi.get(`/api/v1/movies/${id}/external-ids`, { timeout: 30000 }).then(res => res.data);
   }
 };
 
@@ -289,9 +289,9 @@ export const tvShowsAPI = {
     });
   },
 
-  // Получение IMDB ID
-  getImdbId(id: string | number) {
-    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data.imdb_id);
+  // Получение IMDB и других external ids
+  getExternalIds(id: string | number) {
+    return neoApi.get(`/api/v1/tv/${id}/external-ids`, { timeout: 30000 }).then(res => res.data);
   }
 };
 
