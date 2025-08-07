@@ -356,7 +356,7 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
               
               {/* Фильтр по сезонам для TV - кнопки */}
               {type === 'tv' && availableSeasons.length > 0 && (
-                <div>
+                <div className="mb-4">
                   <label className="text-sm font-medium mb-3 block">Сезон</label>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -367,10 +367,7 @@ export default function TorrentSelector({ imdbId, type, title, originalTitle, ye
                       Все сезоны
                     </Button>
                     {availableSeasons.map(season => {
-                      const count = torrents.filter(t => 
-                        t.season === season &&
-                        (selectedQuality === 'all' || t.quality === selectedQuality)
-                      ).length;
+                      const count = torrents?.filter(t => t.season === season && (selectedQuality === 'all' || t.quality === selectedQuality)).length || 0;
                       return (
                         <Button
                           key={season}
