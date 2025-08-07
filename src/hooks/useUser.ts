@@ -17,7 +17,6 @@ export function useUser() {
 
   const login = async (email: string, password: string) => {
     try {
-      // Сначала проверяем, верифицирован ли аккаунт
       const verificationCheck = await fetch('/api/v1/auth/check-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,7 +26,6 @@ export function useUser() {
       const { isVerified } = await verificationCheck.json();
 
       if (!isVerified) {
-        // Если аккаунт не верифицирован, отправляем новый код и переходим к верификации
         const verificationResponse = await fetch('/api/v1/auth/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,7 +41,6 @@ export function useUser() {
         return;
       }
 
-      // Если аккаунт верифицирован, выполняем вход через наш API
       const loginResponse = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +84,6 @@ export function useUser() {
         throw new Error(data.error || 'Ошибка при регистрации');
       }
 
-      // Отправляем код подтверждения
       const verificationResponse = await fetch('/api/v1/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,7 +122,6 @@ export function useUser() {
         throw new Error(data.error || 'Неверный код подтверждения');
       }
 
-      // После успешной верификации выполняем вход через наш API
       const loginResponse = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

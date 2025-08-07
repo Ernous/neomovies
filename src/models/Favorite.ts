@@ -35,7 +35,6 @@ const FavoriteSchema: Schema = new Schema({
   timestamps: true,
 });
 
-// Ensure a user can't favorite the same item multiple times
 FavoriteSchema.index({ userId: 1, mediaId: 1 }, { unique: true });
 
 export default mongoose.models.Favorite || mongoose.model<IFavorite>('Favorite', FavoriteSchema);
